@@ -5,7 +5,7 @@ import os
 num = random.randint(0, 100)
 print(num)
 
-W = 460
+W = 480
 H = 376
 SILVER = (192, 192, 192)
 BLACK = (0, 0, 0)
@@ -37,15 +37,18 @@ owl_rect = owl.get_rect(center=(210, 120))
 dialog = pygame.image.load(os.path.join(path, 'Image/dialog.png'))
 dialog_rect = dialog.get_rect()
 dialog_cat_pos = (cat_rect.x, cat_rect.y - dialog_rect.h)
-dialog_dog_pos = (dog_rect.x, - dialog_rect.w // 2, dog_rect.y - dialog_rect.h)
+dialog_dog_pos = (dog_rect.x - dialog_rect.w // 2, dog_rect.y - dialog_rect.h)
+dialog_owl_pos = (owl_rect.x, owl_rect.y - dialog_rect.h)
+print(dialog_cat_pos)
+print(cat_rect)
 
 
 def dialogs(text, pos, owl_text):
     screen.blit(dialog, pos)
-    screen.blit(fond2.render(text, True, BLACK), (pos[0] + 5 pos[1] + 5))
+    screen.blit(font2.render(text, True, BLACK), (pos[0] + 5, pos[1] + 5))
     dialog_owl_pos = (owl_rect.x, owl_rect.y - dialog_rect.h)
     screen.blit(dialog, dialog_owl_pos)
-    screen.blit(fond2.render(owl_text, True, BLACK), (dialog_owl_pos[0] + 5 dialog_owl_pos[1] + 5))
+    screen.blit(font2.render(owl_text, True, BLACK), (dialog_owl_pos[0] + 5, dialog_owl_pos[1] + 5))
     pygame.display.update()
     pygame.time.wait(2000)
 
@@ -56,12 +59,39 @@ while run:
         if e .type == pygame.QUIT:
             run = False
         # выход из пррограммы при нажатии Esc
-        elif e.type == pygame.KEYUP:
+        elif e.type == pygame.KEDOWN:
             if e.key == pygame.K_ESCAPE:
                 run = False
             # печатает только цифры
             elif e.unicode.isdecimal() and block == 0:
                 numeral += e.unicode
+            # удаляет последний элемент
+            elif e.key == pygame.K_BACKSPACE:
+                numeral = numeral[:-1]
+            elif e.key == pygame.K_RETURN and numeral:
+                if int(numeral) > 100:
+                    dialog('', OUTSIDE_BG, 'Ошибка')
+                elif int(numeral) > num:
+                    dialog('', OUTSIDE_BG, 'Число меньше')
+                elif int(numeral) < num:
+                    dialog('', OUTSIDE_BG, 'Число больше')
+                if move == 1:
+                    if int(numeral) == num:
+                        dialog(f'Это число {numeral}', dialog_cat_pos, 'Кот, ты выйграл')
+                        block = 1
+                    else:
+                        dialogs('Пёс, твой ход', dialog_cat_pos, 'Продолжаем')
+                elif move == 2:
+                    if int(numeral) == num:
+                        dialog(f'Это число {numeral}', dialog_dog_pos, 'Пёс, ты выйграл')
+                        block = 1
+                    else:
+                        dialogs('Кот, твой ход', dialog_dog_pos, 'Продолжаем')
+                numeral = ''
+                move += 1
+                if move > 2:
+                    move = 1
+
 
     if block == 0:
         screen.blit(bg, bg_rect)
@@ -76,7 +106,7 @@ while run:
         pygame.display.update()
 
     if start == 1:
-        dialogs(''OUTSIDE_BG, 'Я загадала число')
-        dialogs(''OUTSIDE_BG, 'от 1 до 100')
+        dialogs('', OUTSIDE_BG, 'Я загадала число')
+        dialogs('', OUTSIDE_BG, 'от 1 до 100')
         dialogs('Кот твой ход', dialog_dog_pos, 'Отгадай его')
-        start = 0 
+        start = 0
